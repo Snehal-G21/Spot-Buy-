@@ -40,29 +40,6 @@ body{font-family:'Work Sans',sans-serif;background:var(--canvas);color:var(--ink
   background-repeat:repeat-x;
 }
 
-/* ---------- Shutter open animation (signature moment) ---------- */
-#shutter{
-  position:fixed;inset:0;z-index:60;
-  background:
-    repeating-linear-gradient(180deg,#3a4d6b 0 10px,#324263 10px 20px);
-  transform-origin:top;
-  display:flex;align-items:flex-end;justify-content:center;
-}
-#shutter::after{
-  content:'';position:absolute;left:0;right:0;bottom:0;height:16px;
-  background:var(--marigold-dark);
-}
-.shutter-opening{animation:shutterUp 1.05s cubic-bezier(.65,0,.35,1) forwards;}
-@keyframes shutterUp{
-  0%{transform:scaleY(1);}
-  100%{transform:scaleY(0);}
-}
-.shutter-closing{animation:shutterDown .9s cubic-bezier(.65,0,.35,1) forwards;}
-@keyframes shutterDown{
-  0%{transform:scaleY(0);}
-  100%{transform:scaleY(1);}
-}
-
 /* ---------- General motion ---------- */
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 .fade-up{animation:fadeUp .5s ease both;}
@@ -111,9 +88,6 @@ body{font-family:'Work Sans',sans-serif;background:var(--canvas);color:var(--ink
 </head>
 <body class="min-h-screen">
 
-<!-- ==================== SHUTTER OVERLAY ==================== -->
-<div id="shutter"></div>
-
 <!-- ==================== LOGIN SCREEN ==================== -->
 <div id="loginScreen" class="min-h-screen flex flex-col">
   <div class="awning"></div>
@@ -125,7 +99,7 @@ body{font-family:'Work Sans',sans-serif;background:var(--canvas);color:var(--ink
           <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="var(--marigold)" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l1-5h16l1 5M4 9v10a1 1 0 001 1h14a1 1 0 001-1V9M4 9h16M9 21V13h6v8"/></svg>
         </div>
         <h1 class="font-display text-3xl font-bold" style="color:var(--navy);">Welcome back, shopkeeper</h1>
-        <p class="text-sm mt-1" style="color:#6b6558;">Open your shutters and run today's shop</p>
+        <p class="text-sm mt-1" style="color:#6b6558;">Sign in to manage your shop</p>
       </div>
 
       <div class="bg-white rounded-2xl shadow-lg p-7 border" style="border-color:#eee0c8;">
@@ -321,7 +295,6 @@ window.onload = () => {
     currentUser = JSON.parse(savedUser);
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('dashboardScreen').classList.remove('hidden');
-    document.getElementById('shutter').style.transform = 'scaleY(0)';
     boot();
   }
 };
@@ -460,8 +433,6 @@ async function handleLogin() {
     localStorage.setItem('spotbuy_shopkeeper_token', token);
 
     document.getElementById('dashboardScreen').classList.remove('hidden');
-    const shutter = document.getElementById('shutter');
-    shutter.classList.add('shutter-opening');
     await boot();
   } catch (error) {
     console.error(error);
