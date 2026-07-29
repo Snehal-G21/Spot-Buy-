@@ -50,7 +50,7 @@
       ]
     },
       {
-      "id": "prod_1785310136160",
+      "id": "prod_4",
       "shopId": "shop_1",
       "shopName": "ABC Medical Store",
       "ownerId": "ashwini@gmail.com",
@@ -74,7 +74,7 @@
       ]
     },
     {
-      "id": "prod_3",
+      "id": "prod_1",
       "shopId": "shop_2",
       "shopName": "Fresh Food Daily",
       "ownerId": "freshfood@example.com",
@@ -99,7 +99,7 @@
       ]
     },
     {
-      "id": "prod_4",
+      "id": "prod_2",
       "shopId": "shop_2",
       "shopName": "Fresh Food Daily",
       "ownerId": "freshfood@example.com",
@@ -124,7 +124,7 @@
       ]
     },
     {
-      "id": "prod_1785225003104",
+      "id": "prod_3",
       "shopId": "shop_2",
       "shopName": "Fresh Food Daily",
       "ownerId": "freshfood@example.com",
@@ -147,7 +147,7 @@
       ]
     },
     {
-      "id": "prod_5",
+      "id": "prod_1",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -172,7 +172,7 @@
       ]
     },
       {
-      "id": "prod_6",
+      "id": "prod_2",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -196,7 +196,7 @@
       ]
     },
     {
-      "id": "prod_7",
+      "id": "prod_3",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -220,7 +220,7 @@
       ]
     },
      {
-      "id": "prod_8",
+      "id": "prod_4",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -292,12 +292,12 @@
       ]
     },
      {
-      "id": "prod_8",
+      "id": "prod_1",
       "shopId": "shop_4",
       "shopName": "Trends",
       "ownerId": "techhub@example.com",
       "name": "Denim jeans",
-      "category": "cloths",
+      "category": "Cloths",
       "price": 899,
       "originalPrice": 799,
       "quantity": 55,
