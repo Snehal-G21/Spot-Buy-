@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotBUY — My Shop</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#FBF3E6;
+  --ink:#26221C;
+  --marigold:#F2A93B;
+  --marigold-dark:#D98D1F;
+  --terracotta:#D9542F;
+  --teal:#0F6B5C;
+  --teal-light:#E4F3EF;
+  --navy:#1B2A44;
+  --navy-light:#26395A;
+  --amber-bg:#FDEFD9;
+  --red-bg:#FBE7E2;
+}
+*{box-sizing:border-box;}
+body{font-family:'Work Sans',sans-serif;background:var(--canvas);color:var(--ink);}
+.font-display{font-family:'Baloo 2',cursive;}
+
+/* ---------- Awning stripe motif ---------- */
+.awning{
+  height:14px;
+  background-image:repeating-linear-gradient(45deg,var(--terracotta) 0 18px,var(--marigold) 18px 36px);
+  background-size:50px 50px;
+  box-shadow:0 2px 6px rgba(0,0,0,.15) inset;
+}
+.awning-scallop{
+  height:10px;
+  background-image:radial-gradient(circle at 10px 0, transparent 10px, var(--navy) 10.5px);
+  background-size:20px 10px;
+  background-repeat:repeat-x;
+}
+
+/* ---------- Shutter open animation (signature moment) ---------- */
+#shutter{
+  position:fixed;inset:0;z-index:60;
+  background:
+    repeating-linear-gradient(180deg,#3a4d6b 0 10px,#324263 10px 20px);
+  transform-origin:top;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+#shutter::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:16px;
+  background:var(--marigold-dark);
+}
+.shutter-opening{animation:shutterUp 1.05s cubic-bezier(.65,0,.35,1) forwards;}
+@keyframes shutterUp{
+  0%{transform:scaleY(1);}
+  100%{transform:scaleY(0);}
+}
+.shutter-closing{animation:shutterDown .9s cubic-bezier(.65,0,.35,1) forwards;}
+@keyframes shutterDown{
+  0%{transform:scaleY(0);}
+  100%{transform:scaleY(1);}
+}
+
+/* ---------- General motion ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp .5s ease both;}
+@keyframes popIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+.pop-in{animation:popIn .35s cubic-bezier(.2,1.4,.4,1) both;}
+@keyframes coinFloat{
+  0%{transform:translateY(0) rotate(0deg);opacity:1;}
+  100%{transform:translateY(-90px) rotate(180deg);opacity:0;}
+}
+.coin{position:fixed;font-size:22px;z-index:70;animation:coinFloat 1.1s ease-out forwards;pointer-events:none;}
+.press-tap{transition:transform .12s ease;}
+.press-tap:active{transform:scale(.94);}
+.shimmer{
+  background:linear-gradient(90deg,#eee 25%,#f7f7f7 37%,#eee 63%);
+  background-size:400% 100%;animation:shimmerMove 1.4s ease infinite;
+}
+@keyframes shimmerMove{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+/* ---------- Stock gauge ---------- */
+.stock-bar{height:8px;border-radius:99px;background:#eee;overflow:hidden;}
+.stock-bar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.3,1,.4,1),background .4s;}
+
+/* ---------- Toggle ---------- */
+.toggle{width:52px;height:28px;border-radius:99px;position:relative;cursor:pointer;transition:background .25s;}
+.toggle-knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:99px;background:#fff;transition:left .25s cubic-bezier(.3,1,.4,1);box-shadow:0 1px 3px rgba(0,0,0,.3);}
+.toggle.on{background:var(--teal);}
+.toggle.on .toggle-knob{left:27px;}
+.toggle.off{background:#c7ccd4;}
+
+/* ---------- Nav ---------- */
+.tab-btn{position:relative;}
+.tab-btn.active{color:var(--marigold-dark);}
+.tab-btn.active .tab-underline{transform:scaleX(1);}
+.tab-underline{position:absolute;bottom:-2px;left:0;right:0;height:3px;background:var(--marigold-dark);border-radius:3px;transform:scaleX(0);transition:transform .25s ease;}
+
+/* ---------- Order status stepper ---------- */
+.step-dot{width:10px;height:10px;border-radius:99px;background:#e1e1e1;}
+.step-dot.done{background:var(--teal);}
+.step-line{flex:1;height:2px;background:#e1e1e1;}
+.step-line.done{background:var(--teal);}
+
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#d9c7a8;border-radius:4px;}
+.hidden{display:none !important;}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ==================== SHUTTER OVERLAY ==================== -->
+<div id="shutter"></div>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="loginScreen" class="min-h-screen flex flex-col">
+  <div class="awning"></div>
+  <div class="awning-scallop"></div>
+  <div class="flex-1 flex items-center justify-center px-4" style="background:radial-gradient(circle at 50% 0%,#fff7ea 0%,var(--canvas) 60%);">
+    <div class="w-full max-w-md fade-up">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 pop-in" style="background:var(--navy);box-shadow:0 10px 24px rgba(27,42,68,.25);">
+          <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="var(--marigold)" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l1-5h16l1 5M4 9v10a1 1 0 001 1h14a1 1 0 001-1V9M4 9h16M9 21V13h6v8"/></svg>
+        </div>
+        <h1 class="font-display text-3xl font-bold" style="color:var(--navy);">Welcome back, shopkeeper</h1>
+        <p class="text-sm mt-1" style="color:#6b6558;">Open your shutters and run today's shop</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg p-7 border" style="border-color:#eee0c8;">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Email Address</label>
+            <input type="email" id="emailInput" placeholder="you@yourshop.com" class="w-full px-3 py-2.5 border rounded-lg outline-none transition" style="border-color:#e6ddc9;" onfocus="this.style.borderColor='var(--marigold-dark)'" onblur="this.style.borderColor='#e6ddc9'">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Password</label>
+            <input type="password" id="passwordInput" placeholder="••••••••" class="w-full px-3 py-2.5 border rounded-lg outline-none transition" style="border-color:#e6ddc9;" onfocus="this.style.borderColor='var(--marigold-dark)'" onblur="this.style.borderColor='#e6ddc9'">
+          </div>
+          <div class="p-3 rounded-lg" style="background:var(--teal-light);border:1px solid #cfe6df;">
+            <label class="block text-sm font-semibold mb-1" style="color:var(--teal);">GitHub Access Token</label>
+            <input type="password" id="tokenInput" placeholder="ghp_..." class="w-full px-3 py-2.5 border rounded-lg outline-none" style="border-color:#cfe6df;">
+            <p class="text-xs mt-1" style="color:#3f7a6d;">Needs "repo" scope. Stays in this browser only.</p>
+          </div>
+          <button onclick="handleLogin()" id="loginBtn" class="press-tap w-full py-3 rounded-lg font-display font-bold text-white text-base shadow-md" style="background:var(--terracotta);">
+            Open My Shop →
+          </button>
+          <p class="text-center text-xs" style="color:#9a9384;">This portal is for shop owners only. Admin? Use the Admin Portal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SHOPKEEPER DASHBOARD ==================== -->
+<div id="dashboardScreen" class="hidden min-h-screen">
+
+  <!-- Top bar -->
+  <header class="sticky top-0 z-30 shadow-md" style="background:var(--navy);">
+    <div class="awning"></div>
+    <div class="px-4 md:px-8 py-4 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div id="shopAvatar" class="w-11 h-11 rounded-xl bg-cover bg-center flex-shrink-0 flex items-center justify-center font-display font-bold text-lg" style="background-color:var(--marigold);color:var(--navy);"></div>
+        <div class="min-w-0">
+          <h1 id="shopNameDisplay" class="font-display text-lg md:text-xl font-bold text-white truncate">My Shop</h1>
+          <p id="shopOwnerLine" class="text-xs truncate" style="color:#b7c1d4;"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-white">
+          <span id="openLabel">Closed</span>
+          <div id="openToggle" class="toggle off" onclick="quickToggleOpen()"><div class="toggle-knob"></div></div>
+        </div>
+        <button onclick="handleLogout()" class="press-tap text-xs font-semibold px-3 py-2 rounded-lg" style="background:var(--terracotta);color:#fff;">Logout</button>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <nav class="hidden md:flex gap-6 px-8 border-t" style="border-color:#2c3d5c;">
+      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="overview" onclick="switchView('overview')">Overview<span class="tab-underline"></span></button>
+      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="stock" onclick="switchView('stock')">Products &amp; Stock<span class="tab-underline"></span></button>
+      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="orders" onclick="switchView('orders')">Orders<span class="tab-underline"></span></button>
+      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="profile" onclick="switchView('profile')">Shop Profile<span class="tab-underline"></span></button>
+    </nav>
+  </header>
+
+  <main class="px-4 md:px-8 py-6 pb-24 md:pb-8 max-w-6xl mx-auto">
+
+    <!-- ============ OVERVIEW ============ -->
+    <section id="view-overview" class="view-panel">
+      <div id="lowStockBanner" class="hidden mb-5 p-4 rounded-xl fade-up flex items-center gap-3" style="background:var(--red-bg);border:1px solid #f3c9bd;">
+        <span class="text-xl">⚠️</span>
+        <p class="text-sm font-medium" id="lowStockText" style="color:#8a3a24;"></p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl p-5 shadow-sm border fade-up" style="border-color:#eee0c8;">
+          <p class="text-xs font-semibold uppercase tracking-wide" style="color:#9a9384;">Products</p>
+          <p id="statProducts" class="font-display text-3xl font-bold mt-1" style="color:var(--navy);">0</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border fade-up" style="border-color:#eee0c8;animation-delay:.05s;">
+          <p class="text-xs font-semibold uppercase tracking-wide" style="color:#9a9384;">Orders</p>
+          <p id="statOrders" class="font-display text-3xl font-bold mt-1" style="color:var(--navy);">0</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border fade-up" style="border-color:#eee0c8;animation-delay:.1s;">
+          <p class="text-xs font-semibold uppercase tracking-wide" style="color:#9a9384;">Revenue</p>
+          <p id="statRevenue" class="font-display text-3xl font-bold mt-1" style="color:var(--teal);">₹0</p>
+        </div>
+      </div>
+      <h3 class="font-display font-bold text-lg mb-3" style="color:var(--navy);">Your Products</h3>
+      <div id="overviewList" class="grid gap-3 sm:grid-cols-2"></div>
+    </section>
+
+    <!-- ============ STOCK / PRODUCTS ============ -->
+    <section id="view-stock" class="view-panel hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-display font-bold text-lg" style="color:var(--navy);">Products &amp; Stock</h3>
+        <button onclick="openProductModal('add')" class="press-tap text-sm font-semibold px-4 py-2 rounded-lg text-white shadow-sm" style="background:var(--teal);">+ New Product</button>
+      </div>
+      <div id="productsGrid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+    </section>
+
+    <!-- ============ ORDERS ============ -->
+    <section id="view-orders" class="view-panel hidden">
+      <h3 class="font-display font-bold text-lg mb-4" style="color:var(--navy);">Incoming Orders</h3>
+      <div id="ordersList" class="space-y-3"></div>
+    </section>
+
+    <!-- ============ SHOP PROFILE ============ -->
+    <section id="view-profile" class="view-panel hidden">
+      <h3 class="font-display font-bold text-lg mb-4" style="color:var(--navy);">Shop Profile</h3>
+      <div class="bg-white rounded-2xl shadow-sm border p-6 max-w-2xl" style="border-color:#eee0c8;">
+        <div id="profileForm"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t flex justify-around py-2" style="border-color:#eee0c8;">
+    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="overview" onclick="switchView('overview')">🏠<span>Home</span></button>
+    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="stock" onclick="switchView('stock')">📦<span>Stock</span></button>
+    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="orders" onclick="switchView('orders')">🧾<span>Orders</span></button>
+    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="profile" onclick="switchView('profile')">🏪<span>Shop</span></button>
+  </nav>
+</div>
+
+<!-- ==================== PRODUCT MODAL ==================== -->
+<div id="productModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(27,42,68,.55);">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto pop-in">
+    <div class="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white rounded-t-2xl">
+      <h3 id="productModalTitle" class="font-display font-bold text-lg" style="color:var(--navy);">Add Product</h3>
+      <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+    </div>
+    <div class="p-6 space-y-4">
+      <input type="hidden" id="pf_id">
+      <div class="flex items-center gap-4">
+        <div class="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border" style="border-color:#eee0c8;">
+          <img id="pf_imgPreview" class="w-full h-full object-cover" src="" onerror="this.style.opacity=0">
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Product Photo (PNG)</label>
+          <input type="file" id="pf_imageFile" accept="image/*" onchange="handleImageSelect(this,'pf_imgPreview')" class="text-xs w-full">
+          <p id="pf_uploadStatus" class="text-xs mt-1 text-gray-400"></p>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Product Name</label>
+        <input type="text" id="pf_name" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Category</label>
+          <input type="text" id="pf_category" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Quantity</label>
+          <input type="number" id="pf_quantity" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Price (₹)</label>
+          <input type="number" step="0.01" id="pf_price" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Original Price (₹)</label>
+          <input type="number" step="0.01" id="pf_originalPrice" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Description</label>
+        <textarea id="pf_description" rows="3" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;"></textarea>
+      </div>
+      <label class="flex items-center gap-2 text-sm font-medium" style="color:var(--navy);">
+        <input type="checkbox" id="pf_isAvailable" class="h-4 w-4">
+        Available for sale
+      </label>
+    </div>
+    <div class="px-6 py-4 border-t flex justify-end gap-3 sticky bottom-0 bg-white rounded-b-2xl">
+      <button onclick="closeProductModal()" class="press-tap px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+      <button onclick="saveProduct()" id="pf_saveBtn" class="press-tap px-5 py-2 rounded-lg text-sm font-semibold text-white" style="background:var(--terracotta);">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// CONFIGURATION — same GitHub-backed data store used by the admin portal
+// ==========================================
+const CONFIG = { owner: 'Snehal-G21', repo: 'Spot-Buy-' };
+
+let currentUser = null;
+let currentShop = null;
+let defaultBranch = 'main';
+const fileCache = {};
+const shaCache = {};
+
+window.onload = () => {
+  const savedUser = localStorage.getItem('spotbuy_shopkeeper_user');
+  const savedToken = localStorage.getItem('spotbuy_shopkeeper_token');
+  if (savedUser && savedToken) {
+    currentUser = JSON.parse(savedUser);
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('dashboardScreen').classList.remove('hidden');
+    document.getElementById('shutter').style.transform = 'scaleY(0)';
+    boot();
+  }
+};
+
+// ---------- GitHub helpers ----------
+function ghUrl(path) { return `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`; }
+function ghHeaders(overrideToken = null) {
+  const token = overrideToken || localStorage.getItem('spotbuy_shopkeeper_token');
+  if (!token) throw new Error('No token provided');
+  return { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' };
+}
+
+async function fetchGithubJson(filename, overrideToken = null, forceRefresh = false) {
+  if (!forceRefresh && fileCache[filename]) return fileCache[filename];
+  const response = await fetch(ghUrl(filename), { headers: ghHeaders(overrideToken) });
+  if (!response.ok) throw new Error(`Failed to fetch ${filename}. Check token or file existence.`);
+  const data = await response.json();
+  shaCache[filename] = data.sha;
+  const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+  const parsed = JSON.parse(content);
+  fileCache[filename] = parsed;
+  return parsed;
+}
+
+async function writeGithubJson(filename, jsonObj, message) {
+  const headers = ghHeaders();
+  const getResp = await fetch(ghUrl(filename), { headers });
+  if (!getResp.ok) throw new Error(`Could not read current ${filename} before saving.`);
+  const getData = await getResp.json();
+  const sha = getData.sha;
+  const jsonString = JSON.stringify(jsonObj, null, 2);
+  const content = btoa(unescape(encodeURIComponent(jsonString)));
+  const putResp = await fetch(ghUrl(filename), {
+    method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, content, sha })
+  });
+  if (!putResp.ok) {
+    if (putResp.status === 409) throw new Error(`${filename} was changed by someone else at the same time. Please retry.`);
+    throw new Error(`Failed to save ${filename}.`);
+  }
+  const result = await putResp.json();
+  shaCache[filename] = result.content.sha;
+  fileCache[filename] = jsonObj;
+  return result;
+}
+
+// Uploads a PNG (converted client-side via canvas) into /images in the repo, returns raw URL
+async function uploadImageToGithub(dataUrlPng, suggestedName) {
+  const base64 = dataUrlPng.split(',')[1];
+  const path = `images/${suggestedName}`;
+  const headers = ghHeaders();
+  let sha = null;
+  try {
+    const existing = await fetch(ghUrl(path), { headers });
+    if (existing.ok) sha = (await existing.json()).sha;
+  } catch (e) { /* file doesn't exist yet, fine */ }
+  const body = { message: `Upload image ${suggestedName}`, content: base64 };
+  if (sha) body.sha = sha;
+  const putResp = await fetch(ghUrl(path), { method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!putResp.ok) throw new Error('Image upload failed.');
+  return `https://raw.githubusercontent.com/${CONFIG.owner}/${CONFIG.repo}/${defaultBranch}/${path}`;
+}
+
+function fileToPngDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+let pendingImageDataUrl = null;
+async function handleImageSelect(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('pf_uploadStatus');
+  statusEl.innerText = 'Preparing image...';
+  try {
+    pendingImageDataUrl = await fileToPngDataUrl(file);
+    document.getElementById(previewId).src = pendingImageDataUrl;
+    statusEl.innerText = 'Ready — will upload as PNG when you save.';
+  } catch (e) {
+    statusEl.innerText = 'Could not read image.';
+  }
+}
+
+// ---------- Confetti-style coin toast for delightful save feedback ----------
+function coinBurst() {
+  const coins = ['🪙','🪙','🪙'];
+  coins.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = 'coin';
+    el.innerText = c;
+    el.style.left = (46 + i * 6) + 'vw';
+    el.style.bottom = '20px';
+    el.style.animationDelay = (i * 0.08) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1200);
+  });
+}
+
+// ---------- Login ----------
+async function handleLogin() {
+  const email = document.getElementById('emailInput').value.trim();
+  const password = document.getElementById('passwordInput').value.trim();
+  const token = document.getElementById('tokenInput').value.trim();
+  const btn = document.getElementById('loginBtn');
+  if (!email || !password || !token) return Swal.fire('Missing info', 'Please enter email, password, and your GitHub token.', 'warning');
+
+  btn.innerText = 'Checking...'; btn.disabled = true;
+  try {
+    const db = await fetchGithubJson('users.json', token, true);
+    const user = (db.users || []).find(u => u.email === email && u.password === password);
+    if (!user) { Swal.fire('Access Denied', 'Invalid email or password.', 'error'); return; }
+    if (user.role !== 'shopkeeper') { Swal.fire('Wrong Portal', 'This portal is for shop owners. Please use the Admin Portal instead.', 'info'); return; }
+
+    // resolve default branch for raw image URLs
+    try {
+      const repoInfo = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}`, { headers: ghHeaders(token) });
+      if (repoInfo.ok) defaultBranch = (await repoInfo.json()).default_branch || 'main';
+    } catch (e) {}
+
+    currentUser = user;
+    localStorage.setItem('spotbuy_shopkeeper_user', JSON.stringify(user));
+    localStorage.setItem('spotbuy_shopkeeper_token', token);
+
+    document.getElementById('dashboardScreen').classList.remove('hidden');
+    const shutter = document.getElementById('shutter');
+    shutter.classList.add('shutter-opening');
+    await boot();
+  } catch (error) {
+    console.error(error);
+    Swal.fire('Connection Error', 'Could not connect. Check your GitHub token has "repo" access.', 'error');
+  } finally {
+    btn.innerText = 'Open My Shop →'; btn.disabled = false;
+  }
+}
+
+function handleLogout() {
+  localStorage.removeItem('spotbuy_shopkeeper_user');
+  localStorage.removeItem('spotbuy_shopkeeper_token');
+  window.location.reload();
+}
+
+// ---------- Access-control helpers: every read/write is scoped to this shopkeeper ----------
+function ownsProduct(p) { return p.ownerId === currentUser.email; }
+function myProductsOnly(list) { return (list || []).filter(ownsProduct); }
+
+// ---------- Boot ----------
+async function boot() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  try {
+    const shopData = await fetchGithubJson('shops.json', null, true);
+    currentShop = (shopData.shops || []).find(s => s.ownerId === currentUser.email) || null;
+  } catch (e) {
+    console.error(e);
+  }
+  renderShopHeader();
+  switchView('overview');
+}
+
+function renderShopHeader() {
+  document.getElementById('shopNameDisplay').innerText = currentShop ? currentShop.name : (currentUser.name || 'My Shop');
+  document.getElementById('shopOwnerLine').innerText = currentUser.email;
+  const avatar = document.getElementById('shopAvatar');
+  if (currentShop && currentShop.imageUrl) {
+    avatar.style.backgroundImage = `url('${currentShop.imageUrl}')`;
+    avatar.innerText = '';
+  } else {
+    avatar.style.backgroundImage = '';
+    avatar.innerText = (currentShop?.name || currentUser.name || '?').charAt(0).toUpperCase();
+  }
+  const isOpen = !!(currentShop && currentShop.isOpen);
+  const toggle = document.getElementById('openToggle');
+  toggle.classList.toggle('on', isOpen);
+  toggle.classList.toggle('off', !isOpen);
+  document.getElementById('openLabel').innerText = isOpen ? 'Open' : 'Closed';
+}
+
+async function quickToggleOpen() {
+  if (!currentShop) return Swal.fire('No shop yet', 'Set up your shop profile first.', 'info');
+  const newState = !currentShop.isOpen;
+  try {
+    const shopData = await fetchGithubJson('shops.json', null, true);
+    const shops = (shopData.shops || []).map(s => s.id === currentShop.id ? { ...s, isOpen: newState } : s);
+    await writeGithubJson('shops.json', { shops }, `${currentUser.email} set shop ${newState ? 'open' : 'closed'}`);
+    currentShop.isOpen = newState;
+    renderShopHeader();
+  } catch (e) {
+    Swal.fire('Error', e.message || 'Could not update shop status.', 'error');
+  }
+}
+
+// ---------- View switching ----------
+function switchView(name) {
+  document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
+  document.getElementById(`view-${name}`).classList.remove('hidden');
+  document.getElementById(`view-${name}`).classList.add('fade-up');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  if (name === 'overview') renderOverview();
+  if (name === 'stock') renderStock();
+  if (name === 'orders') renderOrders();
+  if (name === 'profile') renderProfile();
+}
+
+function stockColor(qty) {
+  if (qty <= 0) return { bar: '#D9542F', text: '#8a3a24', bg: 'var(--red-bg)', label: 'Out of stock' };
+  if (qty <= 5) return { bar: '#F2A93B', text: '#8a6110', bg: 'var(--amber-bg)', label: 'Low stock' };
+  return { bar: '#0F6B5C', text: '#0F6B5C', bg: 'var(--teal-light)', label: 'In stock' };
+}
+function stockPct(qty) { return Math.max(4, Math.min(100, qty * 4)); }
+function escapeHtml(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ---------- Overview ----------
+async function renderOverview() {
+  const list = document.getElementById('overviewList');
+  list.innerHTML = `<div class="shimmer h-20 rounded-xl"></div><div class="shimmer h-20 rounded-xl"></div>`;
+  try {
+    const prodData = await fetchGithubJson('products.json');
+    const orderData = await fetchGithubJson('orders.json');
+    const products = myProductsOnly(prodData.products);
+    const myProductIds = new Set(products.map(p => p.id));
+    const orders = (orderData.orders || []).filter(o => (o.items || []).some(i => myProductIds.has(i.productId)));
+
+    document.getElementById('statProducts').innerText = products.length;
+    document.getElementById('statOrders').innerText = orders.length;
+    const revenue = orders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+    document.getElementById('statRevenue').innerText = `₹${revenue.toLocaleString('en-IN')}`;
+
+    const low = products.filter(p => (p.quantity || 0) <= 5);
+    const banner = document.getElementById('lowStockBanner');
+    if (low.length) {
+      banner.classList.remove('hidden');
+      document.getElementById('lowStockText').innerText = `${low.length} product${low.length>1?'s':''} running low: ${low.slice(0,4).map(p=>p.name).join(', ')}${low.length>4?'…':''}`;
+    } else {
+      banner.classList.add('hidden');
+    }
+
+    if (products.length === 0) {
+      list.innerHTML = `<div class="col-span-2 text-center text-gray-400 py-8 border-2 border-dashed rounded-xl">No products yet. Add your first one from Products &amp; Stock.</div>`;
+      return;
+    }
+    list.innerHTML = '';
+    products.slice(0, 6).forEach((p, i) => {
+      const c = stockColor(p.quantity || 0);
+      list.innerHTML += `
+        <div class="bg-white rounded-xl p-4 shadow-sm border flex items-center gap-3 fade-up" style="border-color:#eee0c8;animation-delay:${i*0.04}s;">
+          <div class="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0"><img src="${escapeHtml(p.imageUrl||'')}" class="w-full h-full object-cover" onerror="this.style.opacity=0"></div>
+          <div class="min-w-0 flex-1">
+            <p class="font-medium truncate" style="color:var(--navy);">${escapeHtml(p.name)}</p>
+            <p class="text-xs" style="color:${c.text};">${c.label} · ${p.quantity} units</p>
+          </div>
+          <p class="font-display font-bold" style="color:var(--navy);">₹${p.price}</p>
+        </div>`;
+    });
+  } catch (e) {
+    console.error(e);
+    list.innerHTML = `<div class="col-span-2 text-center text-red-500 py-8">Failed to load your shop data.</div>`;
+  }
+}
+
+// ---------- Stock / Products ----------
+async function renderStock() {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = Array(3).fill('<div class="shimmer h-56 rounded-xl"></div>').join('');
+  try {
+    const prodData = await fetchGithubJson('products.json');
+    const products = myProductsOnly(prodData.products);
+    if (products.length === 0) {
+      grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10 border-2 border-dashed rounded-xl">No products yet. Tap "+ New Product" to add your first item.</div>`;
+      return;
+    }
+    grid.innerHTML = '';
+    products.forEach((p, i) => {
+      const c = stockColor(p.quantity || 0);
+      grid.innerHTML += `
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden fade-up" style="border-color:#eee0c8;animation-delay:${i*0.04}s;">
+          <div class="h-32 bg-gray-100 overflow-hidden">
+            <img src="${escapeHtml(p.imageUrl||'')}" class="w-full h-full object-cover" onerror="this.style.opacity=0">
+          </div>
+          <div class="p-4">
+            <div class="flex justify-between items-start gap-2">
+              <div class="min-w-0">
+                <p class="font-semibold truncate" style="color:var(--navy);">${escapeHtml(p.name)}</p>
+                <p class="text-xs text-gray-400">${escapeHtml(p.category||'')}</p>
+              </div>
+              <p class="font-display font-bold flex-shrink-0" style="color:var(--navy);">₹${p.price}</p>
+            </div>
+            <div class="mt-3">
+              <div class="flex justify-between text-xs mb-1" style="color:${c.text};">
+                <span>${c.label}</span><span>${p.quantity} units</span>
+              </div>
+              <div class="stock-bar"><div class="stock-bar-fill" style="width:${stockPct(p.quantity||0)}%;background:${c.bar};"></div></div>
+            </div>
+            <div class="flex items-center justify-between mt-3">
+              <div class="flex items-center gap-2">
+                <button onclick="stepStock('${p.id}',-1)" class="press-tap w-8 h-8 rounded-lg border font-bold" style="border-color:#e6ddc9;">−</button>
+                <span id="qty_${p.id}" class="w-8 text-center font-semibold">${p.quantity||0}</span>
+                <button onclick="stepStock('${p.id}',1)" class="press-tap w-8 h-8 rounded-lg border font-bold" style="border-color:#e6ddc9;">+</button>
+              </div>
+              <div class="flex gap-3 text-xs font-semibold">
+                <button onclick="openProductModal('edit','${p.id}')" style="color:var(--teal);">Edit</button>
+                <button onclick="deleteProduct('${p.id}')" style="color:var(--terracotta);">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    });
+  } catch (e) {
+    console.error(e);
+    grid.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Failed to load products.</div>`;
+  }
+}
+
+async function stepStock(productId, delta) {
+  try {
+    const prodData = await fetchGithubJson('products.json', null, true);
+    const products = prodData.products || [];
+    const target = products.find(p => p.id === productId && ownsProduct(p));
+    if (!target) return Swal.fire('Not allowed', 'You can only edit products in your own shop.', 'error');
+    target.quantity = Math.max(0, (target.quantity || 0) + delta);
+    target.stockStatus = target.quantity > 0 ? 'in_stock' : 'out_of_stock';
+    await writeGithubJson('products.json', { products }, `${currentUser.email} adjusted stock for ${target.name}`);
+    renderStock();
+  } catch (e) {
+    Swal.fire('Error', e.message || 'Could not update stock.', 'error');
+  }
+}
+
+async function openProductModal(mode, productId = null) {
+  pendingImageDataUrl = null;
+  document.getElementById('productModal').classList.remove('hidden');
+  document.getElementById('pf_id').value = productId || '';
+  document.getElementById('pf_uploadStatus').innerText = '';
+  document.getElementById('productModalTitle').innerText = mode === 'edit' ? 'Edit Product' : 'Add Product';
+
+  if (mode === 'edit' && productId) {
+    try {
+      const prodData = await fetchGithubJson('products.json');
+      const product = (prodData.products || []).find(p => p.id === productId && ownsProduct(p));
+      if (!product) throw new Error('Product not found in your shop.');
+      document.getElementById('pf_name').value = product.name || '';
+      document.getElementById('pf_category').value = product.category || '';
+      document.getElementById('pf_quantity').value = product.quantity ?? '';
+      document.getElementById('pf_price').value = product.price ?? '';
+      document.getElementById('pf_originalPrice').value = product.originalPrice ?? '';
+      document.getElementById('pf_description').value = product.description || '';
+      document.getElementById('pf_isAvailable').checked = !!product.isAvailable;
+      document.getElementById('pf_imgPreview').src = product.imageUrl || '';
+    } catch (e) {
+      Swal.fire('Error', e.message || 'Could not load product.', 'error');
+      closeProductModal();
+    }
+  } else {
+    ['pf_name','pf_category','pf_quantity','pf_price','pf_originalPrice','pf_description'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pf_isAvailable').checked = true;
+    document.getElementById('pf_imgPreview').src = '';
+  }
+}
+function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
+
+async function saveProduct() {
+  if (!currentShop) return Swal.fire('No shop yet', 'Set up your Shop Profile first before adding products.', 'info');
+  const btn = document.getElementById('pf_saveBtn');
+  const id = document.getElementById('pf_id').value;
+  const name = document.getElementById('pf_name').value.trim();
+  const quantity = parseInt(document.getElementById('pf_quantity').value, 10) || 0;
+  const price = parseFloat(document.getElementById('pf_price').value) || 0;
+  if (!name) return Swal.fire('Missing info', 'Product name is required.', 'warning');
+
+  btn.innerText = 'Saving...'; btn.disabled = true;
+  try {
+    let imageUrl = document.getElementById('pf_imgPreview').src || '';
+    if (pendingImageDataUrl) {
+      document.getElementById('pf_uploadStatus').innerText = 'Uploading photo...';
+      const fname = `prod_${id || Date.now()}.png`;
+      imageUrl = await uploadImageToGithub(pendingImageDataUrl, fname);
+    }
+    const payload = {
+      id: id || `prod_${Date.now()}`,
+      shopId: currentShop.id,
+      shopName: currentShop.name,
+      ownerId: currentUser.email,
+      name,
+      category: document.getElementById('pf_category').value.trim(),
+      price,
+      originalPrice: parseFloat(document.getElementById('pf_originalPrice').value) || price,
+      quantity,
+      stockStatus: quantity > 0 ? 'in_stock' : 'out_of_stock',
+      isAvailable: document.getElementById('pf_isAvailable').checked,
+      imageUrl,
+      description: document.getElementById('pf_description').value.trim()
+    };
+    const prodData = await fetchGithubJson('products.json', null, true);
+    let products = prodData.products || [];
+    if (id) {
+      const existing = products.find(p => p.id === id);
+      if (existing && !ownsProduct(existing)) throw new Error('You can only edit products in your own shop.');
+      products = products.map(p => p.id === id ? { ...p, ...payload } : p);
+    } else {
+      products.push(payload);
+    }
+    await writeGithubJson('products.json', { products }, `${currentUser.email} ${id ? 'updated' : 'added'} product: ${name}`);
+    closeProductModal();
+    coinBurst();
+    Swal.fire({ title: 'Saved!', icon: 'success', timer: 1100, showConfirmButton: false });
+    renderStock(); renderOverview();
+  } catch (e) {
+    console.error(e);
+    Swal.fire('Error', e.message || 'Could not save product.', 'error');
+  } finally {
+    btn.innerText = 'Save Product'; btn.disabled = false;
+  }
+}
+
+async function deleteProduct(productId) {
+  const confirmRes = await Swal.fire({ title: 'Remove this product?', text: 'This cannot be undone.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete', confirmButtonColor: '#D9542F' });
+  if (!confirmRes.isConfirmed) return;
+  try {
+    const prodData = await fetchGithubJson('products.json', null, true);
+    const target = (prodData.products || []).find(p => p.id === productId);
+    if (target && !ownsProduct(target)) throw new Error('You can only delete products in your own shop.');
+    const products = (prodData.products || []).filter(p => p.id !== productId);
+    await writeGithubJson('products.json', { products }, `${currentUser.email} deleted product ${productId}`);
+    Swal.fire({ title: 'Removed', icon: 'success', timer: 900, showConfirmButton: false });
+    renderStock(); renderOverview();
+  } catch (e) {
+    Swal.fire('Error', e.message || 'Could not delete product.', 'error');
+  }
+}
+
+// ---------- Orders ----------
+async function renderOrders() {
+  const list = document.getElementById('ordersList');
+  list.innerHTML = Array(2).fill('<div class="shimmer h-24 rounded-xl"></div>').join('');
+  try {
+    const prodData = await fetchGithubJson('products.json');
+    const orderData = await fetchGithubJson('orders.json');
+    const myProductIds = new Set(myProductsOnly(prodData.products).map(p => p.id));
+    const orders = (orderData.orders || []).filter(o => (o.items || []).some(i => myProductIds.has(i.productId)));
+
+    if (orders.length === 0) {
+      list.innerHTML = `<div class="text-center text-gray-400 py-10 border-2 border-dashed rounded-xl">No orders yet for your shop.</div>`;
+      return;
+    }
+    const steps = ['Pending','Processing','Completed'];
+    list.innerHTML = '';
+    orders.forEach((o, i) => {
+      const idx = steps.indexOf(o.status);
+      const itemsSummary = (o.items || []).filter(it => myProductIds.has(it.productId)).map(it => `${it.name} ×${it.quantity}`).join(', ');
+      const dateStr = o.date ? new Date(o.date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+      list.innerHTML += `
+        <div class="bg-white rounded-xl shadow-sm border p-4 fade-up" style="border-color:#eee0c8;animation-delay:${i*0.04}s;">
+          <div class="flex justify-between items-start gap-3 mb-2">
+            <div>
+              <p class="font-semibold" style="color:var(--navy);">${escapeHtml(o.orderId)}</p>
+              <p class="text-xs text-gray-400">${escapeHtml(o.customerId||'—')} · ${dateStr}</p>
+            </div>
+            <p class="font-display font-bold" style="color:var(--navy);">₹${o.totalAmount}</p>
+          </div>
+          <p class="text-sm text-gray-600 mb-3">${escapeHtml(itemsSummary)}</p>
+          <div class="flex items-center gap-1 mb-3">
+            ${steps.map((s,si) => `
+              <div class="flex items-center flex-1">
+                <div class="step-dot ${si<=idx?'done':''}"></div>
+                ${si<steps.length-1?`<div class="step-line ${si<idx?'done':''}"></div>`:''}
+              </div>`).join('')}
+          </div>
+          <select onchange="updateOrderStatus('${o.orderId}', this.value)" class="text-xs font-semibold border rounded-full px-3 py-1.5" style="border-color:#e6ddc9;">
+            ${steps.map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>`;
+    });
+  } catch (e) {
+    console.error(e);
+    list.innerHTML = `<div class="text-center text-red-500 py-10">Failed to load orders.</div>`;
+  }
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+  try {
+    const orderData = await fetchGithubJson('orders.json', null, true);
+    const orders = (orderData.orders || []).map(o => o.orderId === orderId ? { ...o, status: newStatus } : o);
+    await writeGithubJson('orders.json', { orders }, `${currentUser.email} set order ${orderId} to ${newStatus}`);
+    Swal.fire({ title: 'Status updated', icon: 'success', timer: 800, showConfirmButton: false });
+    renderOrders();
+  } catch (e) {
+    Swal.fire('Error', e.message || 'Could not update order.', 'error');
+    renderOrders();
+  }
+}
+
+// ---------- Shop Profile ----------
+let pendingShopImageDataUrl = null;
+async function renderProfile() {
+  const wrap = document.getElementById('profileForm');
+  if (!currentShop) {
+    wrap.innerHTML = `<div class="text-center text-gray-400 py-6">No shop profile is linked to your account yet. Ask an admin to create one, or contact support.</div>`;
+    return;
+  }
+  const s = currentShop;
+  wrap.innerHTML = `
+    <div class="space-y-4">
+      <div class="flex items-center gap-4">
+        <div class="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border" style="border-color:#eee0c8;">
+          <img id="sf_preview" class="w-full h-full object-cover" src="${escapeHtml(s.imageUrl||'')}" onerror="this.style.opacity=0">
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Shop Photo (PNG)</label>
+          <input type="file" accept="image/*" onchange="handleShopImageSelect(this)" class="text-xs w-full">
+          <p id="sf_uploadStatus" class="text-xs mt-1 text-gray-400"></p>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Shop Name</label>
+        <input type="text" id="sf_name" value="${escapeHtml(s.name||'')}" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Category</label>
+          <input type="text" id="sf_category" value="${escapeHtml(s.category||'')}" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+        </div>
+        <div class="flex items-end pb-1.5">
+          <label class="flex items-center gap-2 text-sm font-medium" style="color:var(--navy);">
+            <div id="sf_toggle" class="toggle ${s.isOpen?'on':'off'}" onclick="toggleProfileOpen()"><div class="toggle-knob"></div></div>
+            Shop is open
+          </label>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Description</label>
+        <textarea id="sf_description" rows="3" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">${escapeHtml(s.description||'')}</textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Phone Number</label>
+          <input type="text" id="sf_phoneNumber" value="${escapeHtml(s.phoneNumber||'')}" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">WhatsApp Number</label>
+          <input type="text" id="sf_whatsappNumber" value="${escapeHtml(s.whatsappNumber||'')}" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1" style="color:var(--navy);">Address</label>
+        <input type="text" id="sf_address" value="${escapeHtml(s.address||'')}" class="w-full px-3 py-2 border rounded-lg" style="border-color:#e6ddc9;">
+      </div>
+      <button onclick="saveProfile()" id="sf_saveBtn" class="press-tap px-5 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm" style="background:var(--terracotta);">Save Shop Profile</button>
+    </div>`;
+  pendingShopImageDataUrl = null;
+}
+
+function toggleProfileOpen() {
+  const el = document.getElementById('sf_toggle');
+  const willBeOn = !el.classList.contains('on');
+  el.classList.toggle('on', willBeOn);
+  el.classList.toggle('off', !willBeOn);
+}
+
+async function handleShopImageSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('sf_uploadStatus');
+  statusEl.innerText = 'Preparing image...';
+  try {
+    pendingShopImageDataUrl = await fileToPngDataUrl(file);
+    document.getElementById('sf_preview').src = pendingShopImageDataUrl;
+    statusEl.innerText = 'Ready — will upload as PNG when you save.';
+  } catch (e) {
+    statusEl.innerText = 'Could not read image.';
+  }
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('sf_saveBtn');
+  btn.innerText = 'Saving...'; btn.disabled = true;
+  try {
+    let imageUrl = document.getElementById('sf_preview').src || '';
+    if (pendingShopImageDataUrl) {
+      document.getElementById('sf_uploadStatus').innerText = 'Uploading photo...';
+      imageUrl = await uploadImageToGithub(pendingShopImageDataUrl, `shop_${currentShop.id}.png`);
+    }
+    const updated = {
+      name: document.getElementById('sf_name').value.trim(),
+      category: document.getElementById('sf_category').value.trim(),
+      description: document.getElementById('sf_description').value.trim(),
+      imageUrl,
+      phoneNumber: document.getElementById('sf_phoneNumber').value.trim(),
+      whatsappNumber: document.getElementById('sf_whatsappNumber').value.trim(),
+      address: document.getElementById('sf_address').value.trim(),
+      isOpen: document.getElementById('sf_toggle').classList.contains('on')
+    };
+    const shopData = await fetchGithubJson('shops.json', null, true);
+    const shops = (shopData.shops || []).map(s => (s.id === currentShop.id && s.ownerId === currentUser.email) ? { ...s, ...updated } : s);
+    await writeGithubJson('shops.json', { shops }, `${currentUser.email} updated shop profile`);
+    currentShop = { ...currentShop, ...updated };
+    renderShopHeader();
+    coinBurst();
+    Swal.fire({ title: 'Shop updated!', icon: 'success', timer: 1100, showConfirmButton: false });
+  } catch (e) {
+    console.error(e);
+    Swal.fire('Error', e.message || 'Could not save shop profile.', 'error');
+  } finally {
+    btn.innerText = 'Save Shop Profile'; btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
