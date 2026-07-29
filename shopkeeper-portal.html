@@ -69,11 +69,21 @@ body{font-family:'Work Sans',sans-serif;background:var(--canvas);color:var(--ink
 .toggle.on .toggle-knob{left:27px;}
 .toggle.off{background:#c7ccd4;}
 
-/* ---------- Nav ---------- */
-.tab-btn{position:relative;}
-.tab-btn.active{color:var(--marigold-dark);}
-.tab-btn.active .tab-underline{transform:scaleX(1);}
-.tab-underline{position:absolute;bottom:-2px;left:0;right:0;height:3px;background:var(--marigold-dark);border-radius:3px;transform:scaleX(0);transition:transform .25s ease;}
+/* ---------- Sidebar nav ---------- */
+#sidebar{
+  width:260px;background:var(--navy);color:#fff;
+  position:fixed;top:0;left:0;height:100%;z-index:40;
+  display:flex;flex-direction:column;
+  transform:translateX(-100%);transition:transform .25s ease;
+}
+#sidebar.open{transform:translateX(0);}
+@media (min-width:768px){
+  #sidebar{position:sticky;transform:translateX(0);}
+}
+.sidebar-link{display:flex;align-items:center;gap:12px;padding:.65rem 1rem;border-radius:10px;color:#c3ccdc;font-weight:600;font-size:.9rem;transition:background .15s,color .15s;}
+.sidebar-link:hover{background:rgba(255,255,255,.06);color:#fff;}
+.sidebar-link.active{background:var(--marigold);color:var(--navy);}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:35;}
 
 /* ---------- Order status stepper ---------- */
 .step-dot{width:10px;height:10px;border-radius:99px;background:#e1e1e1;}
@@ -128,37 +138,55 @@ body{font-family:'Work Sans',sans-serif;background:var(--canvas);color:var(--ink
 </div>
 
 <!-- ==================== SHOPKEEPER DASHBOARD ==================== -->
-<div id="dashboardScreen" class="hidden min-h-screen">
+<div id="dashboardScreen" class="hidden min-h-screen md:flex">
 
-  <!-- Top bar -->
-  <header class="sticky top-0 z-30 shadow-md" style="background:var(--navy);">
-    <div class="awning"></div>
-    <div class="px-4 md:px-8 py-4 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <div id="shopAvatar" class="w-11 h-11 rounded-xl bg-cover bg-center flex-shrink-0 flex items-center justify-center font-display font-bold text-lg" style="background-color:var(--marigold);color:var(--navy);"></div>
-        <div class="min-w-0">
-          <h1 id="shopNameDisplay" class="font-display text-lg md:text-xl font-bold text-white truncate">My Shop</h1>
-          <p id="shopOwnerLine" class="text-xs truncate" style="color:#b7c1d4;"></p>
-        </div>
+  <!-- Mobile sidebar overlay -->
+  <div id="sidebarOverlay" onclick="toggleSidebar(false)" class="hidden sidebar-overlay md:hidden"></div>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="p-5 border-b flex items-center gap-3" style="border-color:#2c3d5c;">
+      <div id="shopAvatar" class="w-12 h-12 rounded-xl bg-cover bg-center flex-shrink-0 flex items-center justify-center font-display font-bold text-lg" style="background-color:var(--marigold);color:var(--navy);"></div>
+      <div class="min-w-0">
+        <h1 id="shopNameDisplay" class="font-display text-base font-bold text-white truncate">My Shop</h1>
+        <p id="shopOwnerLine" class="text-xs truncate" style="color:#b7c1d4;"></p>
       </div>
-      <div class="flex items-center gap-3 flex-shrink-0">
-        <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-white">
-          <span id="openLabel">Closed</span>
-          <div id="openToggle" class="toggle off" onclick="quickToggleOpen()"><div class="toggle-knob"></div></div>
-        </div>
-        <button onclick="handleLogout()" class="press-tap text-xs font-semibold px-3 py-2 rounded-lg" style="background:var(--terracotta);color:#fff;">Logout</button>
-      </div>
+      <button onclick="toggleSidebar(false)" class="md:hidden ml-auto text-gray-400 hover:text-white">✕</button>
     </div>
-    <!-- Tabs -->
-    <nav class="hidden md:flex gap-6 px-8 border-t" style="border-color:#2c3d5c;">
-      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="overview" onclick="switchView('overview')">Overview<span class="tab-underline"></span></button>
-      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="stock" onclick="switchView('stock')">Products &amp; Stock<span class="tab-underline"></span></button>
-      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="orders" onclick="switchView('orders')">Orders<span class="tab-underline"></span></button>
-      <button class="tab-btn press-tap py-3 text-sm font-semibold text-gray-300" data-view="profile" onclick="switchView('profile')">Shop Profile<span class="tab-underline"></span></button>
-    </nav>
-  </header>
 
-  <main class="px-4 md:px-8 py-6 pb-24 md:pb-8 max-w-6xl mx-auto">
+    <div class="px-4 py-3 flex items-center justify-between text-xs font-semibold text-white border-b" style="border-color:#2c3d5c;">
+      <span id="openLabel">Closed</span>
+      <div id="openToggle" class="toggle off" onclick="quickToggleOpen()"><div class="toggle-knob"></div></div>
+    </div>
+
+    <nav class="flex-1 px-3 py-4 space-y-1">
+      <a href="#" class="sidebar-link" data-view="overview" onclick="switchView('overview');return false;">
+        <span>🏠</span> Overview
+      </a>
+      <a href="#" class="sidebar-link" data-view="stock" onclick="switchView('stock');return false;">
+        <span>📦</span> Manage Stock &amp; Products
+      </a>
+      <a href="#" class="sidebar-link" data-view="orders" onclick="switchView('orders');return false;">
+        <span>🧾</span> Orders
+      </a>
+      <a href="#" class="sidebar-link" data-view="profile" onclick="switchView('profile');return false;">
+        <span>🏪</span> Shop Profile
+      </a>
+    </nav>
+
+    <div class="p-4 border-t" style="border-color:#2c3d5c;">
+      <button onclick="handleLogout()" class="press-tap w-full text-sm font-semibold px-3 py-2 rounded-lg" style="background:var(--terracotta);color:#fff;">Logout</button>
+    </div>
+  </div>
+
+  <div class="flex-1 min-h-screen md:min-w-0">
+    <!-- Top bar (mobile hamburger + page title) -->
+    <header class="sticky top-0 z-20 shadow-sm bg-white flex items-center gap-3 px-4 md:px-8 py-3">
+      <button onclick="toggleSidebar(true)" class="md:hidden text-gray-600 text-xl">☰</button>
+      <h2 id="pageTitle" class="font-display font-bold text-lg" style="color:var(--navy);">Overview</h2>
+    </header>
+
+    <main class="px-4 md:px-8 py-6 pb-8 max-w-5xl mx-auto">
 
     <!-- ============ OVERVIEW ============ -->
     <section id="view-overview" class="view-panel">
@@ -206,15 +234,8 @@ body{font-family:'Work Sans',sans-serif;background:var(--canvas);color:var(--ink
         <div id="profileForm"></div>
       </div>
     </section>
-  </main>
-
-  <!-- Mobile bottom tab bar -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t flex justify-around py-2" style="border-color:#eee0c8;">
-    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="overview" onclick="switchView('overview')">🏠<span>Home</span></button>
-    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="stock" onclick="switchView('stock')">📦<span>Stock</span></button>
-    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="orders" onclick="switchView('orders')">🧾<span>Orders</span></button>
-    <button class="tab-btn press-tap flex flex-col items-center text-xs gap-1 px-2" data-view="profile" onclick="switchView('profile')">🏪<span>Shop</span></button>
-  </nav>
+    </main>
+  </div>
 </div>
 
 <!-- ==================== PRODUCT MODAL ==================== -->
@@ -498,15 +519,25 @@ async function quickToggleOpen() {
 }
 
 // ---------- View switching ----------
+const viewTitles = { overview: 'Overview', stock: 'Manage Stock & Products', orders: 'Orders', profile: 'Shop Profile' };
 function switchView(name) {
   document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
   document.getElementById(`view-${name}`).classList.remove('hidden');
   document.getElementById(`view-${name}`).classList.add('fade-up');
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  document.querySelectorAll('.sidebar-link').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  document.getElementById('pageTitle').innerText = viewTitles[name] || 'Overview';
+  toggleSidebar(false);
   if (name === 'overview') renderOverview();
   if (name === 'stock') renderStock();
   if (name === 'orders') renderOrders();
   if (name === 'profile') renderProfile();
+}
+
+function toggleSidebar(open) {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  if (open) { sb.classList.add('open'); ov.classList.remove('hidden'); }
+  else { sb.classList.remove('open'); ov.classList.add('hidden'); }
 }
 
 function stockColor(qty) {
