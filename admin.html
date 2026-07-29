@@ -6,26 +6,46 @@
     <title>SpotBUY Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* small niceties Tailwind CDN doesn't cover */
-        .modal-backdrop { background: rgba(15, 23, 42, 0.5); }
+        body { font-family: 'Inter', sans-serif; background:#f4f6f8; }
+        .modal-backdrop { background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px); }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .sidebar-link.active { background: #111827; color: #fff; }
+        .sidebar-link { transition: background .15s ease, color .15s ease, padding-left .15s ease, border-color .15s ease; border-left: 3px solid transparent; }
+        .sidebar-link:hover { padding-left: 1.1rem; }
+        .sidebar-link.active { background: rgba(255,255,255,.08); color: #fff; border-left-color: #2dd4bf; }
         .sidebar-link.active svg { color: #2dd4bf; }
         @media (max-width: 767px) {
             #sidebar { transform: translateX(-100%); transition: transform .25s ease; }
             #sidebar.open { transform: translateX(0); }
         }
+
+        /* ---------- Motion ---------- */
+        @keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes popIn { from { opacity:0; transform: scale(.95); } to { opacity:1; transform: scale(1); } }
+        @keyframes shimmerMove { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+        .fade-up { animation: fadeUp .4s ease both; }
+        .pop-in { animation: popIn .25s cubic-bezier(.2,1.2,.4,1) both; }
+        .shimmer { background: linear-gradient(90deg,#e9edf1 25%,#f5f7f9 37%,#e9edf1 63%); background-size:400% 100%; animation: shimmerMove 1.3s ease infinite; border-radius: 6px; }
+
+        .stat-card, .shop-card, .product-card { transition: transform .18s ease, box-shadow .18s ease; }
+        .stat-card:hover, .shop-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(15,23,42,.08); }
+        .btn-modern { transition: transform .13s ease, box-shadow .13s ease; }
+        .btn-modern:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(13,148,136,.28); }
+        .btn-modern:active { transform: translateY(0) scale(.97); }
+        .icon-badge { width: 40px; height: 40px; border-radius: 12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="font-sans">
 
     <!-- ==================== LOGIN SCREEN ==================== -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4">
-        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4" style="background: radial-gradient(circle at 50% 0%, #ecfdf9 0%, #f4f6f8 55%);">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md fade-up">
             <div class="flex justify-center mb-6">
-                <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center text-teal-600">
+                <div class="w-16 h-16 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-600 pop-in">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                 </div>
             </div>
@@ -35,19 +55,19 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input type="email" id="emailInput" value="admin@abcmedical.com" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                    <input type="email" id="emailInput" value="admin@abcmedical.com" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="passwordInput" value="password123" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                    <input type="password" id="passwordInput" value="password123" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
                 </div>
-                <div class="bg-gray-50 p-3 border border-gray-200 rounded-md">
+                <div class="bg-gray-50 p-3 border border-gray-200 rounded-lg">
                     <label class="block text-sm font-medium text-teal-700">GitHub API Token</label>
-                    <input type="password" id="tokenInput" placeholder="ghp_..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                    <input type="password" id="tokenInput" placeholder="ghp_..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
                     <p class="text-xs text-gray-500 mt-1">Needs "repo" scope. Stored in this browser only.</p>
                 </div>
 
-                <button onclick="handleLogin()" id="loginBtn" class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 transition">
+                <button onclick="handleLogin()" id="loginBtn" class="btn-modern w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700">
                     Sign In
                 </button>
             </div>
@@ -61,7 +81,7 @@
         <div id="sidebarOverlay" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-black/40 z-30 md:hidden"></div>
 
         <!-- Sidebar -->
-        <div id="sidebar" class="fixed md:static z-40 top-0 left-0 h-full w-64 bg-gray-900 text-white flex flex-col">
+        <div id="sidebar" class="fixed md:static z-40 top-0 left-0 h-full w-64 bg-gradient-to-b from-gray-900 to-slate-800 text-white flex flex-col">
             <div class="p-6 border-b border-gray-800 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-teal-400">SpotBUY</h1>
@@ -88,14 +108,14 @@
                 </a>
             </nav>
             <div class="p-4 border-t border-gray-800">
-                <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-800 rounded-md transition">
+                <button onclick="handleLogout()" class="btn-modern w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-800 rounded-md">
                     Logout
                 </button>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 bg-gray-100 min-h-screen">
+        <div class="flex-1 min-h-screen">
             <header class="bg-white shadow-sm px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-20">
                 <div class="flex items-center gap-3">
                     <button onclick="toggleSidebar(true)" class="md:hidden text-gray-600">
@@ -105,7 +125,7 @@
                 </div>
                 <div class="flex items-center space-x-3">
                     <span id="userNameDisplay" class="hidden sm:inline text-sm font-medium text-gray-700"></span>
-                    <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm" id="userInitial"></div>
+                    <div class="w-9 h-9 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm ring-2 ring-teal-100" id="userInitial"></div>
                 </div>
             </header>
 
@@ -114,21 +134,36 @@
                 <!-- ============ OVERVIEW VIEW ============ -->
                 <div id="view-overview" class="view-panel">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h3 class="text-sm font-medium text-gray-500">Total Products</h3>
-                            <p id="statProducts" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                        <div class="stat-card fade-up bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                            <div class="icon-badge bg-teal-50 text-teal-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Total Products</h3>
+                                <p id="statProducts" class="text-3xl font-bold text-gray-900 mt-1">0</p>
+                            </div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h3 class="text-sm font-medium text-gray-500">Total Orders</h3>
-                            <p id="statOrders" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                        <div class="stat-card fade-up bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4" style="animation-delay:.05s;">
+                            <div class="icon-badge bg-blue-50 text-blue-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Total Orders</h3>
+                                <p id="statOrders" class="text-3xl font-bold text-gray-900 mt-1">0</p>
+                            </div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h3 class="text-sm font-medium text-gray-500">Revenue</h3>
-                            <p id="statRevenue" class="text-3xl font-bold text-gray-900 mt-2">₹0</p>
+                        <div class="stat-card fade-up bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4" style="animation-delay:.1s;">
+                            <div class="icon-badge bg-amber-50 text-amber-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Revenue</h3>
+                                <p id="statRevenue" class="text-3xl font-bold text-gray-900 mt-1">₹0</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="fade-up bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" style="animation-delay:.15s;">
                         <div class="px-6 py-4 border-b border-gray-100">
                             <h3 class="text-lg font-medium text-gray-900">Recent Products</h3>
                         </div>
@@ -150,10 +185,10 @@
 
                 <!-- ============ PRODUCTS VIEW ============ -->
                 <div id="view-products" class="view-panel hidden">
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="fade-up bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                             <h3 class="text-lg font-medium text-gray-900">Your Products</h3>
-                            <button onclick="openProductModal('add')" class="bg-teal-600 text-white px-4 py-2 rounded-md text-sm hover:bg-teal-700 transition shadow-sm">+ Add New Product</button>
+                            <button onclick="openProductModal('add')" class="btn-modern bg-teal-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-teal-700 shadow-sm">+ Add New Product</button>
                         </div>
                         <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -174,7 +209,7 @@
 
                 <!-- ============ ORDERS VIEW ============ -->
                 <div id="view-orders" class="view-panel hidden">
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="fade-up bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-100">
                             <h3 class="text-lg font-medium text-gray-900">Incoming Orders</h3>
                         </div>
@@ -198,7 +233,11 @@
 
                 <!-- ============ SHOP VIEW ============ -->
                 <div id="view-shop" class="view-panel hidden">
-                    <div id="shopContainer" class="space-y-6"></div>
+                    <div id="shopHeaderRow" class="hidden flex justify-between items-center mb-4 fade-up">
+                        <h3 class="text-lg font-medium text-gray-900">All Shops</h3>
+                        <button onclick="openShopModal()" class="btn-modern bg-teal-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-teal-700 shadow-sm">+ Add New Shop</button>
+                    </div>
+                    <div id="shopContainer" class="space-y-4"></div>
                 </div>
 
             </main>
@@ -207,8 +246,8 @@
 
     <!-- ==================== PRODUCT MODAL ==================== -->
     <div id="productModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white">
+        <div class="pop-in bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white rounded-t-2xl">
                 <h3 id="productModalTitle" class="text-lg font-semibold text-gray-900">Add New Product</h3>
                 <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600">✕</button>
             </div>
@@ -216,63 +255,63 @@
                 <input type="hidden" id="pf_id">
                 <div id="pf_shopWrapper">
                     <label class="block text-sm font-medium text-gray-700">Shop</label>
-                    <select id="pf_shopId" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></select>
+                    <select id="pf_shopId" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg"></select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Product Name</label>
-                    <input type="text" id="pf_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <input type="text" id="pf_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Category</label>
-                        <input type="text" id="pf_category" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="text" id="pf_category" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Quantity</label>
-                        <input type="number" id="pf_quantity" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="number" id="pf_quantity" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Price (₹)</label>
-                        <input type="number" step="0.01" id="pf_price" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="number" step="0.01" id="pf_price" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Original Price (₹)</label>
-                        <input type="number" step="0.01" id="pf_originalPrice" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="number" step="0.01" id="pf_originalPrice" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Image URL</label>
-                    <input type="text" id="pf_imageUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <input type="text" id="pf_imageUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea id="pf_description" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                    <textarea id="pf_description" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="pf_isAvailable" class="h-4 w-4 text-teal-600 rounded">
                     <label for="pf_isAvailable" class="text-sm text-gray-700">Available for sale</label>
                 </div>
             </div>
-            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white">
-                <button onclick="closeProductModal()" class="px-4 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
-                <button onclick="saveProduct()" id="pf_saveBtn" class="px-4 py-2 rounded-md text-sm text-white bg-teal-600 hover:bg-teal-700">Save Product</button>
+            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white rounded-b-2xl">
+                <button onclick="closeProductModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+                <button onclick="saveProduct()" id="pf_saveBtn" class="btn-modern px-4 py-2 rounded-lg text-sm text-white bg-teal-600 hover:bg-teal-700">Save Product</button>
             </div>
         </div>
     </div>
 
-    <!-- ==================== SHOP EDIT MODAL (used by admin's shop list) ==================== -->
+    <!-- ==================== SHOP MODAL (add / edit — used by admin's shop list) ==================== -->
     <div id="shopModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white">
-                <h3 class="text-lg font-semibold text-gray-900">Edit Shop</h3>
+        <div class="pop-in bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white rounded-t-2xl">
+                <h3 id="shopModalTitle" class="text-lg font-semibold text-gray-900">Edit Shop</h3>
                 <button onclick="closeShopModal()" class="text-gray-400 hover:text-gray-600">✕</button>
             </div>
             <div id="shopModalBody" class="p-6 space-y-4"></div>
-            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white">
-                <button onclick="closeShopModal()" class="px-4 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
-                <button onclick="saveShopFromModal()" class="px-4 py-2 rounded-md text-sm text-white bg-teal-600 hover:bg-teal-700">Save Shop</button>
+            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white rounded-b-2xl">
+                <button onclick="closeShopModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+                <button onclick="saveShopFromModal()" class="btn-modern px-4 py-2 rounded-lg text-sm text-white bg-teal-600 hover:bg-teal-700">Save Shop</button>
             </div>
         </div>
     </div>
@@ -421,7 +460,9 @@
         const viewTitles = { overview: 'Overview', products: 'Products', orders: 'Orders', shop: 'Shop Profile' };
         function switchView(name) {
             document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
-            document.getElementById(`view-${name}`).classList.remove('hidden');
+            const panel = document.getElementById(`view-${name}`);
+            panel.classList.remove('hidden');
+            panel.classList.remove('fade-up'); void panel.offsetWidth; panel.classList.add('fade-up');
             document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
             document.querySelector(`.sidebar-link[data-view="${name}"]`).classList.add('active');
             document.getElementById('pageTitle').innerText = viewTitles[name] || 'Overview';
@@ -462,6 +503,10 @@
             }
         }
 
+        function shimmerRow(cols) {
+            return `<tr>${Array(cols).fill('<td class="px-6 py-4"><div class="shimmer h-4 w-full"></div></td>').join('')}</tr>`;
+        }
+
         // --- DASHBOARD BOOTSTRAP ---
         async function showDashboard() {
             document.getElementById('loginScreen').classList.add('hidden');
@@ -494,12 +539,12 @@
                 if (myProducts.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No products found.</td></tr>`;
                 } else {
-                    myProducts.slice(0, 5).forEach(p => {
+                    myProducts.slice(0, 5).forEach((p, i) => {
                         tbody.innerHTML += `
-                            <tr class="border-b border-gray-50">
+                            <tr class="border-b border-gray-50 fade-up" style="animation-delay:${i * 0.04}s;">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
-                                        <div class="h-10 w-10 flex-shrink-0 rounded bg-gray-200 overflow-hidden">
+                                        <div class="h-10 w-10 flex-shrink-0 rounded-lg bg-gray-200 overflow-hidden">
                                             <img src="${escapeHtml(p.imageUrl || '')}" class="h-full w-full object-cover" onerror="this.style.opacity=0">
                                         </div>
                                         <div class="ml-4">
@@ -531,7 +576,7 @@
         // ==========================================
         async function renderProductsView() {
             const tbody = document.getElementById('productsTableBody');
-            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-6 text-center text-gray-400">Loading...</td></tr>`;
+            tbody.innerHTML = shimmerRow(5) + shimmerRow(5) + shimmerRow(5);
             try {
                 const prodData = await fetchGithubJson('products.json');
                 const myProducts = scopedProducts(prodData.products || []);
@@ -542,12 +587,12 @@
                 }
 
                 tbody.innerHTML = '';
-                myProducts.forEach(p => {
+                myProducts.forEach((p, i) => {
                     tbody.innerHTML += `
-                        <tr class="border-b border-gray-50 hover:bg-gray-50">
+                        <tr class="border-b border-gray-50 hover:bg-gray-50 fade-up" style="animation-delay:${i * 0.03}s;">
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
-                                    <div class="h-10 w-10 flex-shrink-0 rounded bg-gray-200 overflow-hidden">
+                                    <div class="h-10 w-10 flex-shrink-0 rounded-lg bg-gray-200 overflow-hidden">
                                         <img src="${escapeHtml(p.imageUrl || '')}" class="h-full w-full object-cover" onerror="this.style.opacity=0">
                                     </div>
                                     <div class="ml-4">
@@ -703,7 +748,7 @@
         // ==========================================
         async function renderOrdersView() {
             const tbody = document.getElementById('ordersTableBody');
-            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-6 text-center text-gray-400">Loading...</td></tr>`;
+            tbody.innerHTML = shimmerRow(6) + shimmerRow(6);
             try {
                 const prodData = await fetchGithubJson('products.json');
                 const orderData = await fetchGithubJson('orders.json');
@@ -717,11 +762,11 @@
                 }
 
                 tbody.innerHTML = '';
-                myOrders.forEach(o => {
+                myOrders.forEach((o, i) => {
                     const itemsSummary = (o.items || []).map(i => `${i.name} ×${i.quantity}`).join(', ');
                     const dateStr = o.date ? new Date(o.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
                     tbody.innerHTML += `
-                        <tr class="border-b border-gray-50 hover:bg-gray-50">
+                        <tr class="border-b border-gray-50 hover:bg-gray-50 fade-up" style="animation-delay:${i * 0.04}s;">
                             <td class="px-6 py-4 font-medium text-gray-900">${escapeHtml(o.orderId)}</td>
                             <td class="px-6 py-4">${escapeHtml(o.customerId || '—')}</td>
                             <td class="px-6 py-4 max-w-xs truncate" title="${escapeHtml(itemsSummary)}">${escapeHtml(itemsSummary)}</td>
@@ -755,42 +800,48 @@
         }
 
         // ==========================================
-        // SHOP PROFILE
+        // SHOP PROFILE (admin: list + add + edit any shop; shopkeeper: edit own shop only)
         // ==========================================
         async function renderShopView() {
             const container = document.getElementById('shopContainer');
-            container.innerHTML = `<div class="text-center text-gray-400 py-6">Loading...</div>`;
+            const headerRow = document.getElementById('shopHeaderRow');
+            container.innerHTML = `<div class="text-center text-gray-400 py-6">
+                <div class="shimmer h-20 rounded-2xl mb-3"></div>
+                <div class="shimmer h-20 rounded-2xl"></div>
+            </div>`;
             try {
                 const shopData = await fetchGithubJson('shops.json');
                 const shops = shopData.shops || [];
 
                 if (isAdmin()) {
+                    headerRow.classList.remove('hidden');
                     if (shops.length === 0) {
-                        container.innerHTML = `<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center text-gray-500">No shops found.</div>`;
+                        container.innerHTML = `<div class="fade-up bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center text-gray-500">No shops found yet. Click "+ Add New Shop" to create the first one.</div>`;
                         return;
                     }
-                    container.innerHTML = shops.map(s => shopCardHtml(s)).join('');
+                    container.innerHTML = shops.map((s, i) => shopCardHtml(s, i)).join('');
                 } else {
+                    headerRow.classList.add('hidden');
                     const myShop = shops.find(s => s.ownerId === currentUser.email);
                     if (!myShop) {
-                        container.innerHTML = `<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center text-gray-500">No shop profile found for your account.</div>`;
+                        container.innerHTML = `<div class="fade-up bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center text-gray-500">No shop profile found for your account.</div>`;
                         return;
                     }
-                    container.innerHTML = `<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 max-w-2xl">${shopFormHtml(myShop, true)}</div>`;
+                    container.innerHTML = `<div class="fade-up bg-white rounded-2xl shadow-sm border border-gray-100 p-6 max-w-2xl">${shopFormHtml(myShop, true, [], false)}</div>`;
                 }
             } catch (error) {
                 console.error(error);
-                container.innerHTML = `<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center text-red-500">Failed to load shop data.</div>`;
+                container.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center text-red-500">Failed to load shop data.</div>`;
             }
         }
 
-        function shopCardHtml(s) {
+        function shopCardHtml(s, i) {
             const statusCls = s.isOpen ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50';
             const statusLabel = s.isOpen ? 'Open' : 'Closed';
             return `
-                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center justify-between gap-4">
+                <div class="shop-card fade-up bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-between gap-4" style="animation-delay:${(i || 0) * 0.05}s;">
                     <div class="flex items-center gap-4 min-w-0">
-                        <div class="h-14 w-14 flex-shrink-0 rounded-lg bg-gray-200 overflow-hidden">
+                        <div class="h-14 w-14 flex-shrink-0 rounded-xl bg-gray-200 overflow-hidden">
                             <img src="${escapeHtml(s.imageUrl || '')}" class="h-full w-full object-cover" onerror="this.style.opacity=0">
                         </div>
                         <div class="min-w-0">
@@ -805,28 +856,51 @@
                 </div>`;
         }
 
-        function shopFormHtml(s, inline) {
+        // Builds the owner <select> for the admin's add/edit shop modal — lists all shopkeeper
+        // accounts from users.json, plus the shop's current ownerId if it isn't in that list.
+        function ownerOptionsHtml(shopkeepers, currentOwnerId) {
+            const knownEmails = new Set(shopkeepers.map(u => u.email));
+            let opts = shopkeepers.map(u => `<option value="${escapeHtml(u.email)}" ${u.email === currentOwnerId ? 'selected' : ''}>${escapeHtml(u.name)} — ${escapeHtml(u.email)}</option>`).join('');
+            if (currentOwnerId && !knownEmails.has(currentOwnerId)) {
+                opts = `<option value="${escapeHtml(currentOwnerId)}" selected>${escapeHtml(currentOwnerId)} (not found in users list)</option>` + opts;
+            }
+            if (!currentOwnerId) {
+                opts = `<option value="">Select a shopkeeper…</option>` + opts;
+            }
+            return opts;
+        }
+
+        function shopFormHtml(s, inline, shopkeepers, isNew) {
             const prefix = inline ? 'sf_' : 'sm_';
+            const ownerField = !inline ? `
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Shop Owner (Shopkeeper)</label>
+                        <select id="${prefix}ownerId" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            ${ownerOptionsHtml(shopkeepers || [], s.ownerId || '')}
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Only accounts with the "shopkeeper" role can own a shop.</p>
+                    </div>` : '';
             return `
                 <div class="space-y-4">
-                    <input type="hidden" id="${prefix}id" value="${escapeHtml(s.id)}">
+                    <input type="hidden" id="${prefix}id" value="${escapeHtml(s.id || '')}">
+                    ${ownerField}
                     <div class="flex items-center gap-4">
-                        <div class="h-16 w-16 flex-shrink-0 rounded-lg bg-gray-200 overflow-hidden">
+                        <div class="h-16 w-16 flex-shrink-0 rounded-xl bg-gray-200 overflow-hidden">
                             <img id="${prefix}preview" src="${escapeHtml(s.imageUrl || '')}" class="h-full w-full object-cover" onerror="this.style.opacity=0">
                         </div>
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700">Shop Image URL</label>
-                            <input type="text" id="${prefix}imageUrl" value="${escapeHtml(s.imageUrl || '')}" oninput="document.getElementById('${prefix}preview').src=this.value" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <input type="text" id="${prefix}imageUrl" value="${escapeHtml(s.imageUrl || '')}" oninput="document.getElementById('${prefix}preview').src=this.value" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Shop Name</label>
-                        <input type="text" id="${prefix}name" value="${escapeHtml(s.name || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="text" id="${prefix}name" value="${escapeHtml(s.name || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Category</label>
-                            <input type="text" id="${prefix}category" value="${escapeHtml(s.category || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <input type="text" id="${prefix}category" value="${escapeHtml(s.category || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                         </div>
                         <div class="flex items-end pb-2">
                             <label class="flex items-center gap-2 text-sm text-gray-700">
@@ -837,33 +911,49 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="${prefix}description" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">${escapeHtml(s.description || '')}</textarea>
+                        <textarea id="${prefix}description" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">${escapeHtml(s.description || '')}</textarea>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Phone Number</label>
-                            <input type="text" id="${prefix}phoneNumber" value="${escapeHtml(s.phoneNumber || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <input type="text" id="${prefix}phoneNumber" value="${escapeHtml(s.phoneNumber || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">WhatsApp Number</label>
-                            <input type="text" id="${prefix}whatsappNumber" value="${escapeHtml(s.whatsappNumber || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <input type="text" id="${prefix}whatsappNumber" value="${escapeHtml(s.whatsappNumber || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Address</label>
-                        <input type="text" id="${prefix}address" value="${escapeHtml(s.address || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="text" id="${prefix}address" value="${escapeHtml(s.address || '')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
-                    ${inline ? `<div class="pt-2"><button onclick="saveShop('${prefix}')" class="px-4 py-2 rounded-md text-sm text-white bg-teal-600 hover:bg-teal-700">Save Changes</button></div>` : ''}
+                    ${inline ? `<div class="pt-2"><button onclick="saveShop('${prefix}', false, false)" class="btn-modern px-4 py-2 rounded-lg text-sm text-white bg-teal-600 hover:bg-teal-700">Save Changes</button></div>` : ''}
                 </div>`;
         }
 
-        async function openShopModal(shopId) {
+        // shopId = null → "Add New Shop" mode
+        async function openShopModal(shopId = null) {
+            const isNew = !shopId;
             try {
-                const shopData = await fetchGithubJson('shops.json');
-                const shop = (shopData.shops || []).find(s => s.id === shopId);
-                if (!shop) throw new Error('Shop not found');
-                document.getElementById('shopModalBody').innerHTML = shopFormHtml(shop, false);
-                document.getElementById('shopModal').dataset.shopId = shopId;
+                let shop = { id: '', ownerId: '', name: '', category: '', description: '', imageUrl: '', phoneNumber: '', whatsappNumber: '', address: '', isOpen: true };
+                if (!isNew) {
+                    const shopData = await fetchGithubJson('shops.json');
+                    const existing = (shopData.shops || []).find(s => s.id === shopId);
+                    if (!existing) throw new Error('Shop not found');
+                    shop = existing;
+                }
+
+                let shopkeepers = [];
+                try {
+                    const userData = await fetchGithubJson('users.json');
+                    shopkeepers = (userData.users || []).filter(u => u.role === 'shopkeeper');
+                } catch (e) {
+                    console.error('Could not load shopkeepers list', e);
+                }
+
+                document.getElementById('shopModalTitle').innerText = isNew ? 'Add New Shop' : 'Edit Shop';
+                document.getElementById('shopModalBody').innerHTML = shopFormHtml(shop, false, shopkeepers, isNew);
+                document.getElementById('shopModal').dataset.isNew = isNew ? '1' : '0';
                 document.getElementById('shopModal').classList.remove('hidden');
             } catch (error) {
                 Swal.fire('Error', error.message || 'Could not load shop.', 'error');
@@ -875,11 +965,15 @@
         }
 
         async function saveShopFromModal() {
-            await saveShop('sm_', true);
+            const isNew = document.getElementById('shopModal').dataset.isNew === '1';
+            await saveShop('sm_', true, isNew);
         }
 
-        async function saveShop(prefix, isModal = false) {
-            const id = document.getElementById(`${prefix}id`).value;
+        async function saveShop(prefix, isModal = false, isNew = false) {
+            const idField = document.getElementById(`${prefix}id`);
+            const id = idField ? idField.value : '';
+            const ownerField = document.getElementById(`${prefix}ownerId`);
+
             const updated = {
                 name: document.getElementById(`${prefix}name`).value.trim(),
                 category: document.getElementById(`${prefix}category`).value.trim(),
@@ -890,12 +984,25 @@
                 address: document.getElementById(`${prefix}address`).value.trim(),
                 isOpen: document.getElementById(`${prefix}isOpen`).checked
             };
+            if (ownerField) updated.ownerId = ownerField.value.trim();
+
+            if (!updated.name) return Swal.fire('Missing info', 'Shop name is required.', 'warning');
+            if (isNew && !updated.ownerId) return Swal.fire('Missing owner', 'Please select a shopkeeper to own this shop.', 'warning');
 
             try {
                 const shopData = await fetchGithubJson('shops.json', null, true);
-                const shops = (shopData.shops || []).map(s => s.id === id ? { ...s, ...updated } : s);
-                await writeGithubJson('shops.json', { shops }, `Update shop ${id}`);
-                Swal.fire({ title: 'Saved', icon: 'success', timer: 1000, showConfirmButton: false });
+                let shops = shopData.shops || [];
+
+                if (isNew) {
+                    const newShop = { id: `shop_${Date.now()}`, isActive: true, rating: 0, reviewCount: 0, ...updated };
+                    shops = [...shops, newShop];
+                    await writeGithubJson('shops.json', { shops }, `Add new shop: ${updated.name}`);
+                } else {
+                    shops = shops.map(s => s.id === id ? { ...s, ...updated } : s);
+                    await writeGithubJson('shops.json', { shops }, `Update shop ${id}`);
+                }
+
+                Swal.fire({ title: isNew ? 'Shop created' : 'Saved', icon: 'success', timer: 1000, showConfirmButton: false });
                 if (isModal) closeShopModal();
                 renderShopView();
             } catch (error) {
