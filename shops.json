@@ -15,7 +15,7 @@
       "openingTime": "08:00 AM",
       "closingTime": "11:00 PM",
       "openingHours": "08:00 AM - 11:00 PM",
-      "isOpen": true,
+      "isOpen": false,
       "rating": 4.8,
       "reviewCount": 540,
       "isActive": true
