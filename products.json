@@ -50,7 +50,7 @@
       ]
     },
       {
-      "id": "prod_4",
+      "id": "prod_3",
       "shopId": "shop_1",
       "shopName": "ABC Medical Store",
       "ownerId": "ashwini@gmail.com",
@@ -74,7 +74,7 @@
       ]
     },
     {
-      "id": "prod_1",
+      "id": "prod_4",
       "shopId": "shop_2",
       "shopName": "Fresh Food Daily",
       "ownerId": "freshfood@example.com",
@@ -99,7 +99,7 @@
       ]
     },
     {
-      "id": "prod_2",
+      "id": "prod_5",
       "shopId": "shop_2",
       "shopName": "Fresh Food Daily",
       "ownerId": "freshfood@example.com",
@@ -124,7 +124,7 @@
       ]
     },
     {
-      "id": "prod_3",
+      "id": "prod_6",
       "shopId": "shop_2",
       "shopName": "Fresh Food Daily",
       "ownerId": "freshfood@example.com",
@@ -146,7 +146,7 @@
     ]
     },
     {
-      "id": "prod_1",
+      "id": "prod_7",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -171,7 +171,7 @@
       ]
     },
       {
-      "id": "prod_2",
+      "id": "prod_8",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -195,7 +195,7 @@
       ]
     },
     {
-      "id": "prod_3",
+      "id": "prod_9",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -219,7 +219,7 @@
       ]
     },
      {
-      "id": "prod_4",
+      "id": "prod_10",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -243,7 +243,7 @@
       ]
     },
      {
-      "id": "prod_5",
+      "id": "prod_11",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -267,7 +267,7 @@
       ]
     },
      {
-      "id": "prod_6",
+      "id": "prod_12",
       "shopId": "shop_3",
       "shopName": "Tech Hub Electronics",
       "ownerId": "techhub@example.com",
@@ -291,10 +291,10 @@
       ]
     },
      {
-      "id": "prod_1",
+      "id": "prod_13",
       "shopId": "shop_4",
       "shopName": "Trends",
-      "ownerId": "techhub@example.com",
+      "ownerId": "trends@gmail.com",
       "name": "Denim jeans",
       "category": "Cloths",
       "price": 899,
