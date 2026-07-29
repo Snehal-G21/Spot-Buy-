@@ -62,7 +62,7 @@
       "stockStatus": "in_stock",
       "isAvailable": true,
       "imageUrl": "https://5.imimg.com/data5/SELLER/Default/2024/8/443662934/DG/PG/HT/160457072/pantoprazole-gastro-resistant-tablet-500x500.png",
-      "description": "Reduces stomach acid; used for acidity and GERD."
+      "description": "Reduces stomach acid; used for acidity and GERD.",
        "rating": 4.5,
       "reviewCount": 89,
       "searchKeywords": [
@@ -136,15 +136,14 @@
       "stockStatus": "in_stock",
       "isAvailable": true,
       "imageUrl": "https://marketplace.canva.com/Pk_Vc/MAFsWnPk_Vc/1/tl/canva-red-apple-fruit-MAFsWnPk_Vc.png",
-      "description": "it's an apple"
+      "description": "it's an apple",
       "rating": 4.6,
-      "reviewCount": 188,
-      "searchKeywords": [
+     "searchKeywords": [
         "apple",
         "fruit",
         "apples",
-        "apple fruit",
-      ]
+        "apple fruit"
+    ]
     },
     {
       "id": "prod_1",
@@ -178,8 +177,8 @@
       "ownerId": "techhub@example.com",
       "name": "Bluetooth Speaker",
       "category": "Electronics",
-      "price": 1,899,
-      "originalPrice": 1,799,
+      "price": 1899,
+      "originalPrice": 1799,
       "quantity": 55,
       "stockStatus": "in_stock",
       "isAvailable": true,
