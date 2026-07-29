@@ -15,7 +15,7 @@
       "openingTime": "08:00 AM",
       "closingTime": "11:00 PM",
       "openingHours": "08:00 AM - 11:00 PM",
-      "isOpen": false,
+      "isOpen": true,
       "rating": 4.8,
       "reviewCount": 540,
       "isActive": true
@@ -61,7 +61,7 @@
       "isActive": true
     },
     {
-      "id": "shop_1785311087173",
+      "id": "shop_4",
       "isActive": true,
       "rating": 0,
       "reviewCount": 0,
