@@ -138,6 +138,21 @@
       "isAvailable": true,
       "imageUrl": "https://marketplace.canva.com/Pk_Vc/MAFsWnPk_Vc/1/tl/canva-red-apple-fruit-MAFsWnPk_Vc.png",
       "description": "it's an apple"
+    },
+    {
+      "id": "prod_1785310136160",
+      "shopId": "shop_1",
+      "shopName": "ABC Medical Store",
+      "ownerId": "ashwini@gmail.com",
+      "name": "bag",
+      "category": "medical",
+      "price": 980,
+      "originalPrice": 1500,
+      "quantity": 250,
+      "stockStatus": "in_stock",
+      "isAvailable": true,
+      "imageUrl": "https://raw.githubusercontent.com/Snehal-G21/Spot-Buy-/main/images/prod_1785310133461.png",
+      "description": "bag is very nice"
     }
   ]
 }
