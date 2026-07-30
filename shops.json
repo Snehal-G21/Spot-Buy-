@@ -60,20 +60,5 @@
       "reviewCount": 312,
       "isActive": true
     },
-    {
-      "id": "shop_4",
-      "isActive": true,
-      "rating": 0,
-      "reviewCount": 0,
-      "name": "Trends",
-      "category": "Cloths",
-      "description": "Cloths shop",
-      "imageUrl": "https://commerce.orisha.com/app/uploads/2024/07/Theatrical-sales-space.webp",
-      "phoneNumber": "+91 8055537380",
-      "whatsappNumber": "+91 8055537380",
-      "address": "nanded",
-      "isOpen": true,
-      "ownerId": "siddifurqan@gmail.com",
-    }
   ]
 }
