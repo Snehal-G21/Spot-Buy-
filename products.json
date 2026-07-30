@@ -329,6 +329,21 @@
       "isAvailable": true,
       "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTprzlpCdCyNMq-CL8uFqnnRBY-KTrIN5X0r1m8SXWDZw&s=10",
       "description": "it's fresh bread product"
+    },
+    {
+      "id": "prod_1785402205069",
+      "shopId": "shop_1",
+      "shopName": "Ashwini Medical Store",
+      "ownerId": "ashwini@gmail.com",
+      "name": "Band-Aid",
+      "category": "Medical",
+      "price": 200,
+      "originalPrice": 178,
+      "quantity": 100,
+      "stockStatus": "in_stock",
+      "isAvailable": true,
+      "imageUrl": "https://raw.githubusercontent.com/Snehal-G21/Spot-Buy-/main/images/prod_1785402202101.png",
+      "description": "A Band-Aid is a small sticky bandage with a soft center pad used to cover and protect minor cuts and scrapes."
     }
   ]
 }
