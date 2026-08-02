@@ -354,7 +354,7 @@
       "category": "Medical",
       "price": 200,
       "originalPrice": 250,
-      "quantity": 100,
+      "quantity": 101,
       "stockStatus": "in_stock",
       "isAvailable": true,
       "imageUrl": "https://raw.githubusercontent.com/Snehal-G21/Spot-Buy-/main/images/prod_1785660653943.png",
