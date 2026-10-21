@@ -369,7 +369,7 @@
       "category": "Grocery",
       "price": 60,
       "originalPrice": 40,
-      "quantity": 20,
+      "quantity": 19,
       "stockStatus": "in_stock",
       "isAvailable": true,
       "imageUrl": "https://snehal-g21.github.io/Spot-Buy-/shopkeeper-portal.html",
