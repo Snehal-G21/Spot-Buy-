@@ -359,21 +359,6 @@
       "isAvailable": true,
       "imageUrl": "https://raw.githubusercontent.com/Snehal-G21/Spot-Buy-/main/images/prod_1785660653943.png",
       "description": "bandage medical product"
-    },
-    {
-      "id": "prod_1792603637523",
-      "shopId": "shop_1",
-      "shopName": "Ashwini Medical Store",
-      "ownerId": "ashwini@gmail.com",
-      "name": "banana",
-      "category": "Grocery",
-      "price": 60,
-      "originalPrice": 40,
-      "quantity": 19,
-      "stockStatus": "in_stock",
-      "isAvailable": true,
-      "imageUrl": "https://snehal-g21.github.io/Spot-Buy-/shopkeeper-portal.html",
-      "description": "healthy and tasty banana's"
     }
   ]
 }
